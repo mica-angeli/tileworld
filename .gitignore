@@ -1,7 +1,10 @@
 # IDE configuration files
+.idea/
 .vscode/
 
 # Build files
+cmake-build-debug/
+build/
 oshw/
 *.o
 *.a

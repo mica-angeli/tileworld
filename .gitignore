@@ -1,0 +1,14 @@
+# IDE configuration files
+.vscode/
+
+# Build files
+oshw/
+*.o
+*.a
+comptime.h
+config.log
+config.status
+Makefile
+oshw
+tworld
+

@@ -15,7 +15,11 @@ if(NOT WIN32 AND NOT APPLE)
 endif()
 
 # Add the OS/HW abstraction
-add_subdirectory(oshw-sdl)
+if(OSHW_USE_SDL2)
+    add_subdirectory(oshw-sdl2)
+else()
+    add_subdirectory(oshw-sdl)
+endif()
 
 # Core TWorld sources
 set(TWorld_SOURCES
@@ -39,8 +43,8 @@ endif()
 set(TW_NAME tworld)
 
 add_executable("${TW_NAME}" WIN32 ${TWorld_SOURCES})
-if(OSHW_USE_QT)
-    target_link_libraries("${TW_NAME}" oshw-qt)
+if(OSHW_USE_SDL2)
+    target_link_libraries("${TW_NAME}" oshw-sdl2)
 else()
     target_link_libraries("${TW_NAME}" oshw-sdl)
 endif()

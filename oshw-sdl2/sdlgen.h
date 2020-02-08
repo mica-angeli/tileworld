@@ -4,60 +4,62 @@
  * License. No warranty. See COPYING for details.
  */
 
-#ifndef	_sdlgen_h_
-#define	_sdlgen_h_
+#ifndef  _sdlgen_h_
+#define  _sdlgen_h_
 
-#include	"SDL.h"
-#include	"../gen.h"
-#include	"../oshw.h"
+#include  "SDL2/SDL.h"
+#include  "../gen.h"
+#include  "../oshw.h"
 
 /* Structure to hold the definition of a font.
  */
-typedef	struct fontinfo {
-    signed char		h;		/* height of each character */
-    signed char		w[256];		/* width of each character */
-    void	       *memory;		/* memory allocated for the font */
-    unsigned char      *bits[256];	/* pointers to each glyph */
+typedef struct fontinfo {
+    signed char h;    /* height of each character */
+    signed char w[256];    /* width of each character */
+    void *memory;    /* memory allocated for the font */
+    unsigned char *bits[256];  /* pointers to each glyph */
 } fontinfo;
 
 /* Structure to hold a font's colors.
  */
-typedef	struct fontcolors { Uint32 c[3]; } fontcolors;
+typedef struct fontcolors {
+    Uint32 c[3];
+} fontcolors;
 
-#define	bkgndcolor(fc)	((fc).c[0])	/* the background color */
-#define	halfcolor(fc)	((fc).c[1])	/* the antialiasing color */
-#define	textcolor(fc)	((fc).c[2])	/* the main color of the glyphs */
+#define  bkgndcolor(fc)  ((fc).c[0])  /* the background color */
+#define  halfcolor(fc)  ((fc).c[1])  /* the antialiasing color */
+#define  textcolor(fc)  ((fc).c[2])  /* the main color of the glyphs */
 
 /* Flags to the puttext function.
  */
-#define	PT_CENTER	0x0100		/* center the text horizontally */
-#define	PT_RIGHT	0x0200		/* right-align the text */
-#define	PT_MULTILINE	0x0400		/* span lines & break at whitespace */
-#define	PT_UPDATERECT	0x0800		/* return the unused area in rect */
-#define	PT_CALCSIZE	0x1000		/* determine area needed for text */
-#define	PT_DIM		0x2000		/* draw using the dim text color */
-#define	PT_HILIGHT	0x4000		/* draw using the bold text color */
-#define PT_SKIPLINES(n)	((n) & 0x00FF)	/* don't render the first n lines */
+#define  PT_CENTER  0x0100    /* center the text horizontally */
+#define  PT_RIGHT  0x0200    /* right-align the text */
+#define  PT_MULTILINE  0x0400    /* span lines & break at whitespace */
+#define  PT_UPDATERECT  0x0800    /* return the unused area in rect */
+#define  PT_CALCSIZE  0x1000    /* determine area needed for text */
+#define  PT_DIM    0x2000    /* draw using the dim text color */
+#define  PT_HILIGHT  0x4000    /* draw using the bold text color */
+#define PT_SKIPLINES(n)  ((n) & 0x00FF)  /* don't render the first n lines */
 
 /*
  * Values global to this module. All the globals are placed in here,
  * in order to minimize pollution of the main module's namespace.
  */
 
-typedef	struct oshwglobals
-{
+typedef struct oshwglobals {
     /* 
      * Shared variables.
      */
 
-    short		wtile;		/* width of one tile in pixels */
-    short		htile;		/* height of one tile in pixels */
-    short		cptile;		/* size of one tile in pixels */
-    fontcolors		textclr;	/* color triplet for normal text */
-    fontcolors		dimtextclr;	/* color triplet for dim text */
-    fontcolors		hilightclr;	/* color triplet for bold text */
-    SDL_Surface	       *screen;		/* the display */
-    fontinfo		font;		/* the font */
+    short wtile;    /* width of one tile in pixels */
+    short htile;    /* height of one tile in pixels */
+    short cptile;    /* size of one tile in pixels */
+    fontcolors textclr;  /* color triplet for normal text */
+    fontcolors dimtextclr;  /* color triplet for dim text */
+    fontcolors hilightclr;  /* color triplet for bold text */
+    SDL_Window *window;     /* the main window */
+    SDL_Surface *screen;    /* the display */
+    fontinfo font;    /* the font */
 
     /* 
      * Shared functions.
@@ -95,15 +97,15 @@ typedef	struct oshwglobals
      * rendering animated cell tiles, or -1 if the game has not
      * started.
      */
-    SDL_Surface* (*getcellimagefunc)(SDL_Rect *rect,
-				     int top, int bot, int timerval);
+    SDL_Surface *(*getcellimagefunc)(SDL_Rect *rect,
+                                     int top, int bot, int timerval);
 
     /* Return a pointer to a tile image for the given creature or
      * animation sequence with the specified direction, sub-position,
      * and animation frame.
      */
-    SDL_Surface* (*getcreatureimagefunc)(SDL_Rect *rect, int id, int dir,
-					 int moving, int frame);
+    SDL_Surface *(*getcreatureimagefunc)(SDL_Rect *rect, int id, int dir,
+                                         int moving, int frame);
 
     /* Display a line (or more) of text in the program's font. The
      * text is clipped to area if necessary. If area is taller than
@@ -129,7 +131,7 @@ typedef	struct oshwglobals
      * the returned array.
      */
     SDL_Rect *(*measuretablefunc)(SDL_Rect const *area,
-				  tablespec const *table);
+                                  tablespec const *table);
 
     /* Draw a single row of the given table. cols is an array of
      * rectangles, one for each column. Each rectangle is altered by
@@ -141,7 +143,7 @@ typedef	struct oshwglobals
      * in the row.
      */
     int (*drawtablerowfunc)(tablespec const *table, SDL_Rect *cols,
-			    int *row, int flags);
+                            int *row, int flags);
 
 } oshwglobals;
 
@@ -151,26 +153,32 @@ extern oshwglobals sdlg;
 
 /* Some convenience macros for the above functions.
  */
-#define eventupdate		(*sdlg.eventupdatefunc)
-#define	keyeventcallback	(*sdlg.keyeventcallbackfunc)
-#define	mouseeventcallback	(*sdlg.mouseeventcallbackfunc)
-#define	windowmappos		(*sdlg.windowmapposfunc)
-#define	puttext			(*sdlg.puttextfunc)
-#define	measuretable		(*sdlg.measuretablefunc)
-#define	drawtablerow		(*sdlg.drawtablerowfunc)
-#define	createscroll		(*sdlg.createscrollfunc)
-#define	scrollmove		(*sdlg.scrollmovefunc)
-#define	getcreatureimage	(*sdlg.getcreatureimagefunc)
-#define	getcellimage		(*sdlg.getcellimagefunc)
+#define eventupdate    (*sdlg.eventupdatefunc)
+#define  keyeventcallback  (*sdlg.keyeventcallbackfunc)
+#define  mouseeventcallback  (*sdlg.mouseeventcallbackfunc)
+#define  windowmappos    (*sdlg.windowmapposfunc)
+#define  puttext      (*sdlg.puttextfunc)
+#define  measuretable    (*sdlg.measuretablefunc)
+#define  drawtablerow    (*sdlg.drawtablerowfunc)
+#define  createscroll    (*sdlg.createscrollfunc)
+#define  scrollmove    (*sdlg.scrollmovefunc)
+#define  getcreatureimage  (*sdlg.getcreatureimagefunc)
+#define  getcellimage    (*sdlg.getcellimagefunc)
 
 /* The initialization functions for the various modules.
  */
 extern int _sdltimerinitialize(int showhistogram);
+
 extern int _sdlresourceinitialize(void);
+
 extern int _sdltextinitialize(void);
+
 extern int _sdltileinitialize(void);
+
 extern int _sdlinputinitialize(void);
+
 extern int _sdloutputinitialize(int fullscreen);
+
 extern int _sdlsfxinitialize(int silence, int soundbufsize);
 
 #endif

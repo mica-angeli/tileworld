@@ -4,10 +4,14 @@
  * License. No warranty. See COPYING for details.
  */
 
+#if defined(__APPLE__)
+#include <SDL.h>
+#else
+#include  <SDL2/SDL.h>
+#endif
 #include	<stdio.h>
 #include	<stdlib.h>
 #include	<string.h>
-#include	"SDL2/SDL.h"
 #include	"sdlgen.h"
 #include	"../err.h"
 #include	"../state.h"

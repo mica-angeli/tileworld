@@ -4,8 +4,12 @@
  * License. No warranty. See COPYING for details.
  */
 
+#if defined(__APPLE__)
+#include <SDL.h>
+#else
+#include  <SDL2/SDL.h>
+#endif
 #include	<stdlib.h>
-#include	"SDL2/SDL.h"
 #include	"sdlgen.h"
 
 /* By default, a second of game time lasts for 1000 milliseconds of

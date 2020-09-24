@@ -15,3 +15,6 @@ Makefile
 oshw
 tworld
 
+# Misc OS Files
+.DS_Store
+

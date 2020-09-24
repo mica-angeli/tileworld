@@ -44,7 +44,7 @@ static void _eventupdate(int wait) {
             mousevisible = FALSE;
           }
         }
-        keyeventcallback(event.key.keysym.sym, TRUE);
+        keyeventcallback(event.key.keysym.scancode, TRUE);
         // TODO: Port this
 //        if (event.key.keysym.unicode
 //            && event.key.keysym.unicode != event.key.keysym.sym) {
@@ -60,7 +60,7 @@ static void _eventupdate(int wait) {
             mousevisible = FALSE;
           }
         }
-        keyeventcallback(event.key.keysym.sym, FALSE);
+        keyeventcallback(event.key.keysym.scancode, FALSE);
         break;
       case SDL_MOUSEBUTTONDOWN:
       case SDL_MOUSEBUTTONUP:

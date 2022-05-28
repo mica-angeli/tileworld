@@ -33,9 +33,9 @@
  */
 #define	SIZE_EXTLEFT	0x01	/* image extended leftwards by one tile */
 #define	SIZE_EXTRIGHT	0x02	/* image extended rightwards by one tile */
-#define	SIZE_EXTUP	0x04	/* image extended upwards by one tile */
+#define	SIZE_EXTUP	    0x04	/* image extended upwards by one tile */
 #define	SIZE_EXTDOWN	0x08	/* image extended downards by one tile */
-#define	SIZE_EXTALL	0x0F	/* image is 3x3 tiles in size */
+#define	SIZE_EXTALL	    0x0F	/* image is 3x3 tiles in size */
 
 /* Structure providing pointers to the various tile images available
  * for a given id.
@@ -220,15 +220,19 @@ static SDL_Surface *newsurface(int w, int h, int transparency)
 
     if (transparency) {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	s = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA | SDL_RLEACCEL,
-				 w, h, 32,
-				 0xFF000000, 0x00FF0000,
-				 0x0000FF00, 0x000000FF);
+	s = SDL_CreateRGBSurface(0,
+				 w, h, sdlg.screen->format->BitsPerPixel,
+				 sdlg.screen->format->Rmask,
+				 sdlg.screen->format->Gmask,
+				 sdlg.screen->format->Bmask,
+				 sdlg.screen->format->Amask);
 #else
 	s = SDL_CreateRGBSurface(0,
-				 w, h, 32,
-				 0x000000FF, 0x0000FF00,
-				 0x00FF0000, 0xFF000000);
+				 w, h, sdlg.screen->format->BitsPerPixel,
+				 sdlg.screen->format->Rmask,
+				 sdlg.screen->format->Gmask,
+				 sdlg.screen->format->Bmask,
+				 sdlg.screen->format->Amask);
 #endif
     } else {
 	s = SDL_CreateRGBSurface(0,
@@ -240,12 +244,6 @@ static SDL_Surface *newsurface(int w, int h, int transparency)
     }
     if (!s)
 	die("couldn't create surface: %s", SDL_GetError());
-    if (!transparency && sdlg.screen->format->palette)
-    // Not super sure about this...
-	SDL_SetPaletteColors(sdlg.screen->format->palette,
-	        sdlg.screen->format->palette->colors,
-	        0,
-	        sdlg.screen->format->palette->ncolors);
     return s;
 }
 
@@ -267,8 +265,10 @@ static void freerememberedsurfaces(void)
     int	n;
 
     for (n = 0 ; n < surfacesused ; ++n)
-	if (surfaceheap[n])
+	if (surfaceheap[n]) {
 	    SDL_FreeSurface(surfaceheap[n]);
+	}
+	
     free(surfaceheap);
     surfaceheap = NULL;
     surfacesused = 0;
@@ -467,7 +467,7 @@ static SDL_Surface *extractkeyedtile(SDL_Surface *src,
     dest = newsurface(wimg, himg, TRUE);
     SDL_FillRect(dest, NULL, SDL_MapRGBA(dest->format,
 					 0, 0, 0, SDL_ALPHA_TRANSPARENT));
-    SDL_SetColorKey(src, SDL_TRUE, transpclr);
+    SDL_SetColorKey(dest, SDL_TRUE, transpclr);
     rect.x = ximg;
     rect.y = yimg;
     rect.w = dest->w;
@@ -476,11 +476,10 @@ static SDL_Surface *extractkeyedtile(SDL_Surface *src,
     SDL_SetColorKey(src, 0, 0);
 
     temp = dest;
-    dest = SDL_ConvertSurfaceFormat(temp, SDL_PIXELFORMAT_RGBA8888, 0);;
+    dest = SDL_ConvertSurfaceFormat(temp, SDL_PIXELFORMAT_RGBA8888, 0);
     SDL_FreeSurface(temp);
     if (!dest)
 	die("%s", SDL_GetError());
-    SDL_SetSurfaceAlphaMod(dest, 0);
     return dest;
 }
 
@@ -1086,10 +1085,6 @@ int loadtileset(char const *filename, int complain)
 	    errmsg(filename, "cannot read bitmap: %s", SDL_GetError());
 	return FALSE;
     }
-    if (tiles->format->palette && sdlg.screen->format->palette)
-    // TODO: This might not work.  May need to create a palette and call SDL_SetSurfacePalette()
-	SDL_SetPaletteColors(sdlg.screen->format->palette, tiles->format->palette->colors,
-		      0, tiles->format->palette->ncolors);
 
     if (tiles->w % 2 != 0) {
 	freetileset();
